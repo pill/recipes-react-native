@@ -3,6 +3,10 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useFavorites } from '@/hooks/use-favorites';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function ModalScreen() {
   const { recipe, recipeId } = useLocalSearchParams<{
@@ -10,8 +14,11 @@ export default function ModalScreen() {
     recipeId: string;
   }>();
   const router = useRouter();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const colorScheme = useColorScheme() ?? 'light';
 
   let recipeData: any = null;
+  let currentRecipeId = recipeId;
   if (recipe) {
     try {
       recipeData = JSON.parse(recipe);
@@ -19,6 +26,17 @@ export default function ModalScreen() {
       console.error('Failed to parse recipe data:', e);
     }
   }
+
+  const favorited = currentRecipeId ? isFavorite(currentRecipeId) : false;
+
+  const handleToggleFavorite = async () => {
+    if (recipeData && currentRecipeId) {
+      await toggleFavorite({
+        _id: currentRecipeId,
+        _source: recipeData,
+      });
+    }
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -28,9 +46,20 @@ export default function ModalScreen() {
         showsVerticalScrollIndicator={true}>
         {recipeData ? (
           <>
-            <ThemedText type="title" style={styles.title}>
-              {recipeData.title || 'Recipe Details'}
-            </ThemedText>
+            <ThemedView style={styles.titleRow}>
+              <ThemedText type="title" style={styles.title}>
+                {recipeData.title || 'Recipe Details'}
+              </ThemedText>
+              {currentRecipeId && (
+                <Pressable onPress={handleToggleFavorite} style={styles.favoriteButton}>
+                  <IconSymbol
+                    name={favorited ? 'heart.fill' : 'heart'}
+                    size={28}
+                    color={favorited ? '#ff3b30' : Colors[colorScheme].icon}
+                  />
+                </Pressable>
+              )}
+            </ThemedView>
 
             {recipeData.description && (
               <ThemedView style={styles.section}>
@@ -188,9 +217,19 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  title: {
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
+  },
+  title: {
+    flex: 1,
     fontSize: 28,
+    marginRight: 12,
+  },
+  favoriteButton: {
+    padding: 8,
   },
   section: {
     marginBottom: 20,
