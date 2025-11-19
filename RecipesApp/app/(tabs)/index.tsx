@@ -6,13 +6,19 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { Fonts, Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { ELASTICSEARCH_HOST } from '@/config/elasticsearch';
 
 export default function SearchScreen() {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const borderColor = colorScheme === 'dark' ? Colors.dark.icon : Colors.light.icon;
 
   const handleSearch = () => {
     console.log('Search button pressed');
@@ -74,13 +80,27 @@ export default function SearchScreen() {
 
       <TextInput
         placeholder="Search for a recipe"
-        style={styles.input}
+        placeholderTextColor={colorScheme === 'dark' ? Colors.dark.icon : Colors.light.icon}
+        style={[
+          styles.input,
+          {
+            color: textColor,
+            borderColor: borderColor,
+            backgroundColor: colorScheme === 'dark' ? Colors.dark.background : Colors.light.background,
+          },
+        ]}
         onChangeText={(text) => {
           console.log('Search text changed:', text);
           setSearchText(text);
         }}
       />
-      <ThemedView style={styles.buttonContainer}>
+      <ThemedView
+        style={[
+          styles.buttonContainer,
+          {
+            borderColor: borderColor,
+          },
+        ]}>
         <Button onPress={handleSearch} title="Search" />
       </ThemedView>
 
@@ -113,14 +133,15 @@ const styles = StyleSheet.create({
   buttonContainer: {
     margin: 12,
     borderWidth: 1,
-    borderColor: 'black',
     padding: 10,
+    borderRadius: 8,
   },
   input: {
     height: 40,
     margin: 12,
     borderWidth: 1,
     padding: 10,
+    borderRadius: 8,
   },
   headerImage: {
     color: '#808080',
