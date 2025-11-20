@@ -64,7 +64,7 @@ export default function SearchScreen() {
         <IconSymbol
           size={310}
           color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
+          name="fork.knife"
           style={styles.headerImage}
         />
       }>
@@ -135,10 +135,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   headerImage: {
-    color: '#808080',
     bottom: -90,
     left: -35,
     position: 'absolute',
+    opacity: 0.8,
   },
   titleContainer: {
     flexDirection: 'row',
